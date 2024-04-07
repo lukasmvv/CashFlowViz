@@ -23,7 +23,8 @@ def readExcelData():
     colorConfig = yaml.safe_load(Path(colorPath).read_text())
 
     # Empty lists
-    labels = ["Fixed Expense", "Variable Expense"]
+    sums = ["Fixed Expense", "Variable Expense", "House Total"]
+    labels = ["Fixed Expense", "Variable Expense", "House Total"]
     sources = []
     targets = []
     values = []
@@ -62,26 +63,22 @@ def readExcelData():
                         colours.append(colorConfig[df["Type"][target]])
 
                         # Adding fixed/variable expenses nodes
-                        if df["Type"][target] == "Fixed Expense" or df["Type"][target] == "Variable Expense":
+                        if df["Type"][target] in sums:
                             sources.append(labels.index(target))
                             targets.append(labels.index(df["Type"][target]))
                             values.append(df[source][target])
                             colours.append(colorConfig[df["Type"][target]])
 
-
-                    
-
+    for l in labels:
+        if l in colorConfig.keys():
+            nodeColours.append(colorConfig[l])
+        else:
+            nodeColours.append("rgba(150,150,150,0.5)")
     return labels, sources, targets, values, nodeColours, colours
 
 
 # Extracting all required lists for Sankey chart
 labels, sources, targets, values, allColours, colours = readExcelData()
-print(labels)
-print(sources)
-print(targets)
-print(values)
-print(allColours)
-print(colours)
 
 # Creating Sankey Viz
 fig = go.Figure(data=[go.Sankey(
@@ -92,7 +89,7 @@ fig = go.Figure(data=[go.Sankey(
       thickness = 20,
       line = dict(color = "black", width = 0.5),
       label = labels,
-    #   color = allColours
+      color = allColours
     ),
     link = dict(
       source = sources,
@@ -100,5 +97,5 @@ fig = go.Figure(data=[go.Sankey(
       value = values,
       color = colours
   ))])
-fig.update_layout(title_text="Basic Sankey Diagram", font_size=10)
+fig.update_layout(title_text="Van Vuuren Cash Flow Viz", font_size=10)
 fig.show()
